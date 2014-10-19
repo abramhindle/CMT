@@ -7,6 +7,9 @@ import os
 import sys
 import time
 
+import liblo
+import math
+
 import CMT
 import numpy as np
 import util
@@ -32,6 +35,8 @@ args = parser.parse_args()
 
 CMT.estimate_scale = args.estimate_scale
 CMT.estimate_rotation = args.estimate_rotation
+
+target = liblo.Address("127.0.0.1",57120)
 
 if args.pause:
 	pause_time = 0
@@ -231,4 +236,7 @@ else:
 		# Advance frame number
 		frame += 1
 
-		print '{5:04d}: center: {0:.2f},{1:.2f} scale: {2:.2f}, active: {3:03d}, {4:04.0f}ms'.format(CMT.center[0], CMT.center[1], CMT.scale_estimate, CMT.active_keypoints.shape[0], 1000 * (toc - tic), frame)
+		if not math.isnan(CMT.center[0]):
+			print '{5:04d}: center: {0:.2f},{1:.2f} scale: {2:.2f}, active: {3:03d}, {4:04.0f}ms'.format(CMT.center[0], CMT.center[1], CMT.scale_estimate, CMT.active_keypoints.shape[0], 1000 * (toc - tic), frame)
+			liblo.send( target, "/cmt", frame, CMT.center[0], CMT.center[1],0,0,CMT.scale_estimate,CMT.active_keypoints.shape[0])	
+		#lo_send(lo_t,"/tld","iiiiif",imAcq->currentFrame - 1, tld->currBB->x, tld->currBB->y, tld->currBB->width, tld->currBB->height, tld->currConf);
